@@ -10,3 +10,5 @@ Tetris Using PyGame
 - if a row fills up make it despawn
 - if block its top of the ceiling game over
 - hold top scores in the game
+- Shifting pieces
+- different pieces I, J, L, O, S, T, Z
