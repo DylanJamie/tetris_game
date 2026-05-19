@@ -1,0 +1,12 @@
+## TO do file
+
+Tetris Using PyGame
+
+- Open a window
+- make the blocks
+- make the blocks fall with pressing space
+- make the block coliders
+- Make a score
+- if a row fills up make it despawn
+- if block its top of the ceiling game over
+- hold top scores in the game
