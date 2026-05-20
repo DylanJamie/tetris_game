@@ -15,6 +15,13 @@ curr_block_movement = 0
 game_active = True
 move_rate = 20
 
+# Spawn Block
+block_list = []
+block_time = 10000 # 10 sec
+block_spawn = pygame.USEREVENT
+pygame.time.set_timer(block_spawn, block_time)
+block_shape = [] # eventually we will put all the shapes here
+
 # Set the difficulty
 def set_difficulty(value, difficulty):
     pass
@@ -47,9 +54,11 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 running = False
+            if event.type == block_spawn:
+                y_pos += move_rate
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
-                    y_pos += move_rate
+                    y_pos = 0
                 if event.key == pygame.K_RIGHT:
                     x_pos += move_rate
                 if event.key == pygame.K_LEFT:
