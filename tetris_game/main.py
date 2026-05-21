@@ -82,18 +82,52 @@ def main():
                     grid_x = x_pos // utils.BLOCK_SIZE
                     next_grid_y = next_y // utils.BLOCK_SIZE
 
+                    # Check if hitting the floor or the blocks already placed
+                    if next_y >= utils.Y or (next_grid_y < grid_rows and grid[next_grid_y][grid_x] is not None):
+                        # Lock current block into thr grid matrix
+                        current_grid_y = y_pos // utils.BLOCK_SIZE
+                        grid[current_grid_y][grid_x] = utils.LIME_GREEN
+
+                        # Spawn a brnd new block at the top
+                        x_pos, y_pos = spawn_new_block()
+                    else:
+                        y_pos = next_y
+                        
             # Snap to the bottom when hitting the bottom floor
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
-                    y_pos = utils.Y - utils.BLOCK_SIZE
+                    # Find what the lowest avalible point to drop to is
+                    grid_x = x_pos // utils.BLOCK_SIZE
+                    target_row = y_pos // utils.BLOCK_SIZE
 
-                # Make boundry checks so the blocks don't go off screen
+                    # Look down row by row intil wee hit the floor or filled cell in the matrix
+                    while target_row + 1 < grid_rows and grid[target_row + 1][grid_x] is None:
+                        target_row += 1
+
+                    # Lock it into that target row
+                    grid[target_row][grid_x] = utils.LIME_GREEN
+                    # instantly spawn the next block
+                    x_pos, y_pos = spawn_new_block()
+                        
+                # Move to the right
                 if event.key == pygame.K_RIGHT:
-                    if x_pos < utils.X - utils.BLOCK_SIZE:
-                        x_pos += MOVE_RATE
+                    next_x = x_pos + MOVE_RATE
+                    grid_x = next_x // utils.BLOCK_SIZE
+                    grid_y = y_pos  // utils.BLOCK_SIZE
+
+                    # Only move to the right if it stays in bounds
+                    if next_x < utils.X and grid[grid_y][grid_x] is None:
+                        x_pos = next_x
+                        
+                # Move to the left                    
                 if event.key == pygame.K_LEFT:
-                    if x_pos > 0:
-                        x_pos -= MOVE_RATE
+                    next_x = x_pos - MOVE_RATE
+                    grid_x = next_x // utils.BLOCK_RATE
+                    grid_y = y_pos  // utils.BLOCK_RATE
+
+                    # Keep in bounds
+                    if next_x >= 0 and grid[grid_y][grid_x] is None:
+                        x_pos = next_x
                     
         # Define and draw active falling piece
         current_block = pygame.Rect(x_pos, y_pos, utils.BLOCK_SIZE, utils.BLOCK_SIZE)
