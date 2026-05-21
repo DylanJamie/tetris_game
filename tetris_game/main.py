@@ -13,6 +13,9 @@ import src.utils as utils
 # BLock movement
 MOVE_RATE  = 20
 
+# List of all the colors
+# LIST_COLOR = [utils.CYAN, utils.YELLOW, utils.PURPLE, utils.ORANGE, utils.BLUE, utils.LIME_GREEN, utils.RED]
+
 # Continuous falling speed
 # 500 ms, make the block drop
 BLOCK_FALL_EVENT = pygame.USEREVENT + 1
@@ -20,7 +23,9 @@ pygame.time.set_timer(BLOCK_FALL_EVENT, 500)
 
 # Make a new function to store a new block ath the top center
 def spawn_new_block():
-    return (utils.X // 2) - (utils.Y // 2), 0
+    # pick a random color for the block
+    block_color = random.choice(utils.LIST_COLOR)
+    return (utils.X // 2), 0, block_color
 
 # Main Function
 def main():
@@ -50,7 +55,7 @@ def main():
 
     # this makes every block spawn in the center 0
     # the spawn new block funct returns a tuple of coords
-    x_pos, y_pos = spawn_new_block()
+    x_pos, y_pos, current_color = spawn_new_block()
         
     # Main while loop
     running = True
@@ -86,10 +91,10 @@ def main():
                     if next_y >= utils.Y or (next_grid_y < grid_rows and grid[next_grid_y][grid_x] is not None):
                         # Lock current block into thr grid matrix
                         current_grid_y = y_pos // utils.BLOCK_SIZE
-                        grid[current_grid_y][grid_x] = utils.LIME_GREEN
+                        grid[current_grid_y][grid_x] = current_color
 
                         # Spawn a brnd new block at the top
-                        x_pos, y_pos = spawn_new_block()
+                        x_pos, y_pos, current_color = spawn_new_block()
                     else:
                         y_pos = next_y
                         
@@ -105,9 +110,9 @@ def main():
                         target_row += 1
 
                     # Lock it into that target row
-                    grid[target_row][grid_x] = utils.LIME_GREEN
+                    grid[target_row][grid_x] = current_color
                     # instantly spawn the next block
-                    x_pos, y_pos = spawn_new_block()
+                    x_pos, y_pos, current_color = spawn_new_block()
                         
                 # Move to the right
                 if event.key == pygame.K_RIGHT:
@@ -122,8 +127,8 @@ def main():
                 # Move to the left                    
                 if event.key == pygame.K_LEFT:
                     next_x = x_pos - MOVE_RATE
-                    grid_x = next_x // utils.BLOCK_RATE
-                    grid_y = y_pos  // utils.BLOCK_RATE
+                    grid_x = next_x // utils.BLOCK_SIZE
+                    grid_y = y_pos  // utils.BLOCK_SIZE
 
                     # Keep in bounds
                     if next_x >= 0 and grid[grid_y][grid_x] is None:
@@ -131,7 +136,7 @@ def main():
                     
         # Define and draw active falling piece
         current_block = pygame.Rect(x_pos, y_pos, utils.BLOCK_SIZE, utils.BLOCK_SIZE)
-        pygame.draw.rect(SCREEN, utils.LIME_GREEN, current_block)
+        pygame.draw.rect(SCREEN, current_color, current_block)
 
         # Update the display
         pygame.display.update()

@@ -32,8 +32,7 @@ BLUE        = (  0,   0, 255)
 LIME_GREEN  = ( 50, 205,  50)
 RED         = (255,   0,   0)
 
-# List for all the Colors
-LIST_COLOR = [CYAN, YELLOW, PURPLE, ORANGE, BLUE, LIME_GREEN, RED]
+
 
 ## Functions ##
 
