@@ -12,9 +12,6 @@ X = 200
 Y = 400
 BLOCK_SIZE = 20
 
-# Define the screen
-SCREEN = pygame.display.set_mode((X, Y))
-
 # Load Game Colors RGB
 TETRIS_BLUE = ( 26,  41, 107)
 WHITE       = (200, 200, 200) 
@@ -32,8 +29,27 @@ BLUE        = (  0,   0, 255)
 LIME_GREEN  = ( 50, 205,  50)
 RED         = (255,   0,   0)
 
-# List for all the Colors
-LIST_COLOR = [CYAN, YELLOW, PURPLE, ORANGE, BLUE, LIME_GREEN, RED]
+# Dictioary of shapes
+SHAPE = {
+    'O': [(0,0), (0,1), (1,0), (1,1)],
+    'I': [(0,0), (0,1), (0,2), (0,3)],
+    'S': [(0,1), (1,1), (1,0), (2,0)],
+    'Z': [(0,0), (1,0), (1,1), (2,1)],
+    'L': [(0,0), (0,1), (0,2), (1,2)],
+    'J': [(1,0), (1,1), (1,2), (0,2)],
+    'T': [(0,0), (1,0), (2,0), (1,1)]
+}
+
+# Dictionary of shapes to offical Tetris colors
+SHAPE_COLOR = {
+    'O': YELLOW,
+    'I': CYAN,
+    'S': RED,
+    'Z': LIME_GREEN,
+    'L': ORANGE,
+    'J': PINK,
+    'T': PURPLE
+}
 
 ## Functions ##
 
