@@ -19,6 +19,9 @@ TETRIS_BLUE = ( 26,  41, 107)
 WHITE       = (200, 200, 200) 
 DARK_GRAY   = ( 40,  40,  40)
 
+# Grid color
+GRID_COLOR  = ( 38,  56, 138)
+
 # Colors for blocks
 LIME_GREEN  = ( 50, 205,  50)
 
