@@ -28,6 +28,7 @@ ORANGE      = (255, 165,   0)
 BLUE        = (  0,   0, 255)
 LIME_GREEN  = ( 50, 205,  50)
 RED         = (255,   0,   0)
+PINK        = (255, 192, 203)
 
 # Dictioary of shapes
 SHAPE = {

@@ -19,17 +19,40 @@ MOVE_RATE  = 20
 # Continuous falling speed
 # 500 ms, make the block drop
 BLOCK_FALL_EVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(BLOCK_FALL_EVENT, 500)
 
 # Make a new function to store a new block ath the top center
 def spawn_new_block():
     # pick a random color for the block
-    block_color = random.choice(utils.LIST_COLOR)
-    return (utils.X // 2), 0, block_color
+    shape_type = random.choice(list(utils.SHAPE.keys()))
+    shape_layout = utils.SHAPE[shape_type]
+    shape_color = utils.SHAPE_COLOR[shape_type]
+    
+    # We spawn the pivot point at the top center
+    return (utils.X // 2), 0, shape_layout, shape_color
 
+# this function checks to see if the blocks can
+def is_valid_position(pivot_x, pivot_y, shape_layout, grid):
+    for row_off, col_off in shape_layout:
+        # Calculate where the specific block wants to be
+        block_x = pivot_x + (col_off * utils.BLOCK_SIZE)
+        block_y = pivot_y + (row_off * utils.BLOCK_SIZE)
+
+        # Check the screen boudries
+        if block_x < 0 or block_x >= utils.X or block_y >= utils.Y:
+            return False
+
+        # Check grid matrix collision (only if it is within the grid height)
+        if block_y >= 0:
+            grid_x = block_x // utils.BLOCK_SIZE
+            grid_y = block_y // utils.BLOCK_SIZE
+            if grid[grid_y][grid_x] is not None:
+                return False
+    return True
+        
 # Main Function
 def main():
     pygame.init()
+    pygame.time.set_timer(BLOCK_FALL_EVENT, 500)
     SCREEN = pygame.display.set_mode((utils.X, utils.Y))
     CLOCK = pygame.time.Clock()
     pygame.display.set_caption("Tetris")
@@ -55,7 +78,7 @@ def main():
 
     # this makes every block spawn in the center 0
     # the spawn new block funct returns a tuple of coords
-    x_pos, y_pos, current_color = spawn_new_block()
+    x_pos, y_pos, current_shape, current_color = spawn_new_block()
         
     # Main while loop
     running = True
@@ -82,61 +105,57 @@ def main():
 
             # continuous falling event falling from timer    
             if event.type == BLOCK_FALL_EVENT:
-                if y_pos < utils.Y - utils.BLOCK_SIZE:
-                    next_y = y_pos + MOVE_RATE
-                    grid_x = x_pos // utils.BLOCK_SIZE
-                    next_grid_y = next_y // utils.BLOCK_SIZE
+                # Test if moving down by MOVE_RATE is safe
+                if is_valid_position(x_pos, y_pos + MOVE_RATE, current_shape, grid):
+                    y_pos += MOVE_RATE
+                else:
+                    # It cant move down down so lock all 4 blocks into the grid matrix
+                    for row_off, col_off in current_shape:
+                        block_x = x_pos + (col_off * utils.BLOCK_SIZE)
+                        block_y = y_pos + (row_off * utils.BLOCK_SIZE)
+                        if block_y >= 0:
+                            grid[block_y // utils.BLOCK_SIZE][block_x // utils.BLOCK_SIZE] = current_color
 
-                    # Check if hitting the floor or the blocks already placed
-                    if next_y >= utils.Y or (next_grid_y < grid_rows and grid[next_grid_y][grid_x] is not None):
-                        # Lock current block into thr grid matrix
-                        current_grid_y = y_pos // utils.BLOCK_SIZE
-                        grid[current_grid_y][grid_x] = current_color
-
-                        # Spawn a brnd new block at the top
-                        x_pos, y_pos, current_color = spawn_new_block()
-                    else:
-                        y_pos = next_y
+                    # Spawn the next piece
+                    x_pos, y_pos, current_shape, current_color = spawn_new_block()
                         
             # Snap to the bottom when hitting the bottom floor
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
-                    # Find what the lowest avalible point to drop to is
-                    grid_x = x_pos // utils.BLOCK_SIZE
-                    target_row = y_pos // utils.BLOCK_SIZE
+                    # Keep shifting the pivot down 1 block until it hits an invalid pos
+                    while is_valid_position(x_pos, y_pos + utils.BLOCK_SIZE, current_shape, grid):
+                        y_pos += utils.BLOCK_SIZE
 
-                    # Look down row by row intil wee hit the floor or filled cell in the matrix
-                    while target_row + 1 < grid_rows and grid[target_row + 1][grid_x] is None:
-                        target_row += 1
+                    # Lock all 4 blocks into their final destination
+                    for row_off, col_off in current_shape:
+                        block_x = x_pos + (col_off * utils.BLOCK_SIZE)
+                        block_y = y_pos + (row_off * utils.BLOCK_SIZE)
+                        if block_y >= 0:
+                            grid[block_y // utils.BLOCK_SIZE][block_x // utils.BLOCK_SIZE] = current_color
 
-                    # Lock it into that target row
-                    grid[target_row][grid_x] = current_color
-                    # instantly spawn the next block
-                    x_pos, y_pos, current_color = spawn_new_block()
+                    # Spawn next
+                    x_pos, y_pos, current_shape, current_color = spawn_new_block() 
                         
                 # Move to the right
                 if event.key == pygame.K_RIGHT:
-                    next_x = x_pos + MOVE_RATE
-                    grid_x = next_x // utils.BLOCK_SIZE
-                    grid_y = y_pos  // utils.BLOCK_SIZE
-
-                    # Only move to the right if it stays in bounds
-                    if next_x < utils.X and grid[grid_y][grid_x] is None:
-                        x_pos = next_x
-                        
+                    if is_valid_position(x_pos + MOVE_RATE, y_pos, current_shape, grid):
+                        x_pos += MOVE_RATE
+                    
                 # Move to the left                    
                 if event.key == pygame.K_LEFT:
-                    next_x = x_pos - MOVE_RATE
-                    grid_x = next_x // utils.BLOCK_SIZE
-                    grid_y = y_pos  // utils.BLOCK_SIZE
+                    if is_valid_position(x_pos - MOVE_RATE, y_pos, current_shape, grid):
+                        x_pos -= MOVE_RATE
 
-                    # Keep in bounds
-                    if next_x >= 0 and grid[grid_y][grid_x] is None:
-                        x_pos = next_x
-                    
-        # Define and draw active falling piece
-        current_block = pygame.Rect(x_pos, y_pos, utils.BLOCK_SIZE, utils.BLOCK_SIZE)
-        pygame.draw.rect(SCREEN, current_color, current_block)
+        # Make it so it is not just a single block
+        for row_off, col_off in current_shape:
+            block_x = x_pos + (col_off * utils.BLOCK_SIZE)
+            block_y = y_pos + (row_off * utils.BLOCK_SIZE)
+
+            # Only draw if it is visible on board
+            if block_y >= 0:
+                # Define and draw active falling piece
+                current_block = pygame.Rect(block_x, block_y, utils.BLOCK_SIZE, utils.BLOCK_SIZE)
+                pygame.draw.rect(SCREEN, current_color, current_block)
 
         # Update the display
         pygame.display.update()
