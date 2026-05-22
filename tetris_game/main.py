@@ -9,6 +9,7 @@ import pygame_menu
 import sys
 import random
 import src.utils as utils
+import os
 
 # BLock movement
 MOVE_RATE  = 20
@@ -72,6 +73,18 @@ def check_clear_lines(grid, grid_cols):
     }
     return score_table.get(lines_cleared, 0)
 
+# high score functions
+def load_high_score():
+    with open("./src/high_score_track.txt", "r") as file:
+        return int(file.read().strip())
+
+# Save the high score to the TXT
+def save_high_score(new_score):
+    high_score = load_high_score()
+    if new_score > high_score:
+        with open("./src/high_score_track.txt", "w") as file:
+            file.write(str(new_score))
+
 # Main Function
 def main():
     pygame.init()
@@ -101,7 +114,7 @@ def main():
 
     # Load the score and highschore
     score = 0
-    high_score = 0
+    high_score = load_high_score()
     
     # Creating a 20x20 grid martix to store the landed blocks
     # Rows = 400 // 20 = 20 | cols = 400 // 20 = 20
@@ -151,6 +164,7 @@ def main():
         # Handle the inputs
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_high_score(score)
                 pygame.quit()
                 running = False
 
@@ -258,6 +272,8 @@ def main():
         pygame.display.update()
         CLOCK.tick(60)
 
+    # Save high score
+    save_high_score(score)
     # Quit the game
     pygame.quit()
     sys.exit()
