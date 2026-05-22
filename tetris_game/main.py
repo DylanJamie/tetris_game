@@ -112,6 +112,11 @@ def main():
     # this makes every block spawn in the center 0
     # the spawn new block funct returns a tuple of coords
     x_pos, y_pos, current_shape, current_color = spawn_new_block()
+
+    # Check if the new block clips existing blocks
+    if not is_valid_position(x_pos, y_pos, current_shape, grid):
+        print("Game_Over!")
+        running = False
         
     # Main while loop
     running = True
@@ -151,7 +156,12 @@ def main():
 
                     # Spawn the next piece
                     x_pos, y_pos, current_shape, current_color = spawn_new_block()
-                        
+
+                    # Check if the new block clips existing blocks
+                    if not is_valid_position(x_pos, y_pos, current_shape, grid):
+                        print("Game_Over!")
+                        running = False
+                    
             # Snap to the bottom when hitting the bottom floor
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
@@ -172,7 +182,12 @@ def main():
                             
                     # Spawn next
                     x_pos, y_pos, current_shape, current_color = spawn_new_block() 
-                        
+
+                    # Check if the new block clips existing blocks
+                    if not is_valid_position(x_pos, y_pos, current_shape, grid):
+                        print("Game_Over!")
+                        running = False
+        
                 # Move to the right
                 if event.key == pygame.K_RIGHT:
                     if is_valid_position(x_pos + MOVE_RATE, y_pos, current_shape, grid):
