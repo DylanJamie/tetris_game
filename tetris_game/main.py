@@ -183,6 +183,21 @@ def main():
                     if is_valid_position(x_pos - MOVE_RATE, y_pos, current_shape, grid):
                         x_pos -= MOVE_RATE
 
+                # Rotate the piece
+                if event.key == pygame.K_UP:
+                    # Calculate the rotated shape coordinates
+                    rotated_shape = []
+                    
+                    # Loop through the blocks in postion in current shape matrix
+                    for row, col in current_shape:
+                        # Apply the 90 degree turn
+                        new_block = (col, -row)
+                        rotated_shape.append(new_block)
+
+                    # Check if the rotated version is safe to use
+                    if is_valid_position(x_pos, y_pos, rotated_shape, grid):
+                        current_shape = rotated_shape
+                        
         # Make it so it is not just a single block
         for row_off, col_off in current_shape:
             block_x = x_pos + (col_off * utils.BLOCK_SIZE)
