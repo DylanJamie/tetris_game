@@ -75,6 +75,19 @@ def check_clear_lines(grid, grid_cols):
 # Main Function
 def main():
     pygame.init()
+
+    # Add some music
+    pygame.mixer.init()
+
+    # Load the audio
+    pygame.mixer.music.load("./assets/Tetris_main_theme.mp3")
+
+    # Play the track on loop
+    pygame.mixer.music.play(-1)
+
+    # Lower the volume
+    pygame.mixer.music.set_volume(0.3)
+    
     pygame.time.set_timer(BLOCK_FALL_EVENT, 500)
     SCREEN = pygame.display.set_mode((utils.X, utils.Y))
     CLOCK = pygame.time.Clock()
