@@ -28,7 +28,7 @@ def spawn_new_block():
     shape_color = utils.SHAPE_COLOR[shape_type]
     
     # We spawn the pivot point at the top center
-    return (utils.X // 2), 0, shape_layout, shape_color
+    return (utils.GRID_WIDTH // 2), 0, shape_layout, shape_color
 
 # this function checks to see if the blocks can
 def is_valid_position(pivot_x, pivot_y, shape_layout, grid):
@@ -38,7 +38,7 @@ def is_valid_position(pivot_x, pivot_y, shape_layout, grid):
         block_y = pivot_y + (row_off * utils.BLOCK_SIZE)
 
         # Check the screen boudries
-        if block_x < 0 or block_x >= utils.X or block_y >= utils.Y:
+        if block_x < 0 or block_x >= utils.GRID_WIDTH or block_y >= utils.Y:
             return False
 
         # Check grid matrix collision (only if it is within the grid height)
@@ -48,7 +48,30 @@ def is_valid_position(pivot_x, pivot_y, shape_layout, grid):
             if grid[grid_y][grid_x] is not None:
                 return False
     return True
-        
+
+# Check if the line is fully filled
+def check_clear_lines(grid, grid_cols):
+    lines_cleared = 0
+
+    # Iterate bakcwards from the bottom row (19) to top (0)
+    for r in range(len(grid) - 1, -1, -1):
+        # If there are no None Values in this row it is full
+        if None not in grid[r]:
+            # remove the row
+            del grid[r]
+            # insert a brand new empty row at the very top
+            grid.insert(0, [None] * grid_cols)
+            lines_cleared += 1
+
+    # Tetris scoring system
+    score_table = {
+        1: 100,
+        2: 300,
+        3: 500,
+        4: 800
+    }
+    return score_table.get(lines_cleared, 0)
+
 # Main Function
 def main():
     pygame.init()
@@ -57,10 +80,20 @@ def main():
     CLOCK = pygame.time.Clock()
     pygame.display.set_caption("Tetris")
 
+    # intialize the score font
+    pygame.font.init()
+
+    # use font from flappy bird
+    score_font = pygame.font.SysFont('./assets/ARCADECLASSIC.TTF', 24)
+
+    # Load the score and highschore
+    score = 0
+    high_score = 0
+    
     # Creating a 20x20 grid martix to store the landed blocks
     # Rows = 400 // 20 = 20 | cols = 400 // 20 = 20
     grid_rows = utils.Y // utils.BLOCK_SIZE
-    grid_cols = utils.X // utils.BLOCK_SIZE
+    grid_cols = utils.GRID_WIDTH // utils.BLOCK_SIZE
 
     # Create an empty list for the grid rows
     grid = []
@@ -88,7 +121,7 @@ def main():
 
         # Draw Grid
         utils.draw_grid(SCREEN)
-
+    
         # Draw all the static blocks that have already been stacked
         for r in range(grid_rows):
             for c in range(grid_cols):
@@ -133,6 +166,10 @@ def main():
                         if block_y >= 0:
                             grid[block_y // utils.BLOCK_SIZE][block_x // utils.BLOCK_SIZE] = current_color
 
+                    # Add points up
+                    points_earned = check_clear_lines(grid, grid_cols)
+                    score += points_earned
+                            
                     # Spawn next
                     x_pos, y_pos, current_shape, current_color = spawn_new_block() 
                         
@@ -157,7 +194,24 @@ def main():
                 current_block = pygame.Rect(block_x, block_y, utils.BLOCK_SIZE, utils.BLOCK_SIZE)
                 pygame.draw.rect(SCREEN, current_color, current_block)
 
-        # Update the display
+        # Draw Vertical line
+        pygame.draw.line(SCREEN, utils.WHITE, (utils.GRID_WIDTH, 0), (utils.GRID_WIDTH, utils.Y), 2)
+
+        # Render the text surfaces
+        score_label = score_font.render("SCORE", True, utils.WHITE)
+        score_number = score_font.render(str(score), True, utils.CYAN)
+
+        high_score_label = score_font.render("HIGH SCORE", True, utils.WHITE)
+        high_score_number = score_font.render(str(high_score), True, utils.YELLOW)
+
+        # BLit is draw the text surfaces with a specific offset
+        SCREEN.blit(score_label, (utils.GRID_WIDTH + 20, 30))
+        SCREEN.blit(score_number, (utils.GRID_WIDTH + 20, 60))
+
+        SCREEN.blit(high_score_label, (utils.GRID_WIDTH + 20, 130))
+        SCREEN.blit(high_score_number, (utils.GRID_WIDTH + 20, 160))
+                
+        # Update The display
         pygame.display.update()
         CLOCK.tick(60)
 

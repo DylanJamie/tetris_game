@@ -8,8 +8,9 @@ import pygame
 import sys
 
 # Set up the constraints
-X = 200
+X = 350
 Y = 400
+GRID_WIDTH = 200
 BLOCK_SIZE = 20
 
 # Load Game Colors RGB
@@ -56,7 +57,7 @@ SHAPE_COLOR = {
 
 # Grid for the game
 def draw_grid(screen):
-    for x in range(0, X, BLOCK_SIZE):
+    for x in range(0, GRID_WIDTH, BLOCK_SIZE):
         for y in range(0, Y, BLOCK_SIZE):
             rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
             pygame.draw.rect(screen, GRID_COLOR, rect, 1)
